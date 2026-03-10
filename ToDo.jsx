@@ -14,6 +14,14 @@ export const ToDo = () => {
     setIsEditing(false)
   }
 
+  const nextTaskId = (todosList) => {
+    if (!todosList.length) {
+      return 1
+    }
+
+    return Math.max(...todosList.map((task) => task.id)) + 1
+  }
+
   const addTask = () => {
     const title = currentTitle.trim()
     if (!title) return
@@ -21,7 +29,7 @@ export const ToDo = () => {
     setTodos((prev) => [
       ...prev,
       {
-        id: prev.length ? Math.max(...prev.map((t) => t.id)) + 1 : 1,
+        id: nextTaskId(prev),
         title,
         description: currentDescription.trim(),
         completed: false,

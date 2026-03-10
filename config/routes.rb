@@ -9,7 +9,7 @@ Rails.application.routes.draw do
       get "users/update"
 
       resources :users do
-        resources :posts, only: [:index, :create, :update]
+        resources :posts, only: %i[index create update]
         # /api/v1/users/:user_id/posts for index and create
         # /api/v1/users/:user_id/posts/:id for update
       end

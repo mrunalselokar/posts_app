@@ -1,114 +1,122 @@
 import { useState } from "react"
 
-export const ToDo = () =>{
-    const [todos, setTodos] = useState([])
-    const [isEditing, setIsEditing] = useState(false)
-    const [currentTodo, setCurrentTodo] = useState(null)
-    const [currentTitle, setcurrentTitle]= useState('')
-    const[currentDescription, setCurrentDescription] = useState('')
+export const ToDo = () => {
+  const [todos, setTodos] = useState([])
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentTodo, setCurrentTodo] = useState(null)
+  const [currentTitle, setCurrentTitle] = useState("")
+  const [currentDescription, setCurrentDescription] = useState("")
 
-    // type Todo
-    // {
-    //     id: Number,
-    //     title: String,
-    //    description: string,
-    //     completed: Boolean
-    // }
-    //todos: Todo[]
-        
-    
-    const addTask =()=>{
-        setTodos((prev)=>{
-            [...prev, {id: todos.length + 1, title: currentTitle, description: currentDescription, completed: false}]
-        })
-        setcurrentTitle('')
-        setcurrentDescription('')
+  const clearForm = () => {
+    setCurrentTitle("")
+    setCurrentDescription("")
+    setCurrentTodo(null)
+    setIsEditing(false)
+  }
+
+  const addTask = () => {
+    const title = currentTitle.trim()
+    if (!title) return
+
+    setTodos((prev) => [
+      ...prev,
+      {
+        id: prev.length ? Math.max(...prev.map((t) => t.id)) + 1 : 1,
+        title,
+        description: currentDescription.trim(),
+        completed: false,
+      },
+    ])
+
+    clearForm()
+  }
+
+  const removeTask = (todoToRemove) => {
+    setTodos((prev) => prev.filter((todo) => todo.id !== todoToRemove.id))
+
+    if (currentTodo?.id === todoToRemove.id) {
+      clearForm()
     }
+  }
 
-    const removeTask = (todoToRemove) =>{
-        const updatedTodos = todos.filter((todo)=> todo.id !== todoToRemove.id)
-        setTodos(updatedTodos)
+  const toggleTask = (todoToToggle) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === todoToToggle.id ? { ...todo, completed: !todo.completed } : todo
+      )
+    )
+
+    if (currentTodo?.id === todoToToggle.id) {
+      setCurrentTodo((prev) => ({ ...prev, completed: !prev.completed }))
     }
+  }
 
-    const updateTask = () =>{
-            if(!currentTodo) return console.alert('Item not found')
-            
-            updatedTodo = {
-                ...currentTodo,
-                title: currentTitle,
-                description: currentDescription
-            }
-            
-        const rest = todos.filter((item)=> item.id !== currentTodo.id)
-        setTodos([...rest, updatedTodo])
-        setCurrentTodo(null)
-    
-    }
+  const startEditing = (todo) => {
+    setIsEditing(true)
+    setCurrentTodo(todo)
+    setCurrentTitle(todo.title)
+    setCurrentDescription(todo.description)
+  }
 
-    const toggleTodo = () =>{
-        if(!currentTodo) return console.alert('Item not found')
-        
-        updatedTodo = {
-            ...currentTodo,
-            completed: !currentTodo.completed
-        }
-        const rest = todos.filter((item)=> item.id !== currentTodo.id)
-        setTodos([...rest, updatedTodo])
-        setCurrentTodo(null)
-    }
+  const updateTask = () => {
+    if (!currentTodo) return
 
-    return(
-            <div>
-                Tasks:
-                <ul>
-                {todos.map((todo) => {
-                    <li>
-                        {`${todo.id}:  ${todo.title} -  ${todo.description}`}
-                        <input type="checkbox"
-                        checked={todo.completed}
-                        onClick={()=>{
-                                setCurrentTodo(todo)
-                                toggleTodo()
-                                }
-                        }/>
-                        {/* or */}
-                        <button onClick={()=> {
-                                    setCurrentTodo(todo)
-                                    toggleTodo()
-                            }}>
-                            {todo.completed? 'Reopen task' : 'Mark Completed'} 
-                        </button>
-                        <button onClick={removeTask(todo)}
-                        >
-                            Delete
-                        </button>
-                        <button onClick={()=> {
-                                    setCurrentTodo(todo)
-                                    setcurrentTitle(todo.title)
-                                    setIsEditing(true)
-                     } }>Edit T
-                        </button>
-                      {isEditing && (<div>
-                                 <input type="text" value={currentTitle} onChange={(val)=> setcurrentTitle(val)}/>
-                                <input type="text" value={currentDescription} onChange={(val)=> setcurrentDescription(val)}></input>
-                                 <button onClick={updateTask()}>Save</button>
-                        </div>)
-                    }
-                    <button onClick={()=> {
-                                    setCurrentTodo(todo)
-                                    toggleTodo()
-                            }}>
-                            {todo.completed? 'Reopen task' : 'Mark Completed'} 
-                        </button>
-                        
-                    </li>
-                })}
-                </ul>
-                
-                <input type="text" value={currentTitle} onChange={(val)=> setcurrentTitle(val)}></input>
-                <input type="text" value={currentDescription} onChange={(val)=> setcurrentDescription(val)}></input>
-                <button onClick={addTask}>Add a new Task</button>
-            </div>
-     )
-        
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === currentTodo.id
+          ? { ...todo, title: currentTitle.trim(), description: currentDescription.trim() }
+          : todo
+      )
+    )
+
+    clearForm()
+  }
+
+  return (
+    <div>
+      <h2>Tasks</h2>
+
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <label>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => toggleTask(todo)}
+              />
+              {`${todo.id}: ${todo.title} - ${todo.description}`}
+            </label>
+
+            <button onClick={() => startEditing(todo)}>Edit</button>
+            <button onClick={() => removeTask(todo)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+
+      <div style={{ marginTop: "1rem" }}>
+        <input
+          type="text"
+          placeholder="Title"
+          value={currentTitle}
+          onChange={(e) => setCurrentTitle(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Description"
+          value={currentDescription}
+          onChange={(e) => setCurrentDescription(e.target.value)}
+        />
+
+        {isEditing ? (
+          <>
+            <button onClick={updateTask}>Save</button>
+            <button onClick={clearForm}>Cancel</button>
+          </>
+        ) : (
+          <button onClick={addTask}>Add a new Task</button>
+        )}
+      </div>
+    </div>
+  )
 }

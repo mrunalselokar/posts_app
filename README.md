@@ -5,7 +5,7 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version: ruby 3.2.2
+* Ruby version: ruby 3.3.0
 
 * System dependencies: Rails 8.1.2
 
